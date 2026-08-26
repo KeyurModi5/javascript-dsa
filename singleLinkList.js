@@ -29,16 +29,16 @@ class singleLinkList {
         if (!this.head) return undefined
 
         let current = this.head
-        let newTail  = current
+        let newTail = current
         while (current.next) {
-            current = newTail 
-            newNode = current.next
+            newTail = current
+            current = current.next
         }
         if (this.head === current) {
             this.head = null
             this.tail = null
         } else {
-            this.tail = newNode
+            this.tail = newTail
             this.tail.next = null
         }
         this.length--
@@ -52,8 +52,8 @@ class singleLinkList {
         this.head = currenthead.next
         this.length--
         if (this.length === 0) {
-            this.head = 0
-            this.tail = 0
+            this.head = null
+            this.tail = null
         }
         return this
     }
@@ -82,14 +82,15 @@ class singleLinkList {
             counter++
         }
 
-        return current
+        return nodeval
     }
+
     reverse() {
         if (!this.head) return undefined
         let current = this.head
-        let previous = current
+        let previous = null
         let next
-        this.head = this.tail
+        this.tail = current
         while (current) {
             next = current.next
             current.next = previous

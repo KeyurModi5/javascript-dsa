@@ -11,12 +11,14 @@ No dependencies, no build step — every file runs directly under Node.
 
 ## Running
 
-Each file has a set of runnable examples at the bottom, so executing it prints a
-walkthrough of every method:
+The file declares `Node` and `singleLinkList` and prints nothing on its own:
 
 ```bash
-node singleLinkList.js
+node singleLinkList.js   # runs, no output
 ```
+
+To exercise it, append some calls to the bottom of the file, or paste the classes
+into a `node` REPL.
 
 ## Singly linked list
 
@@ -25,39 +27,41 @@ The list tracks `head`, `tail`, and `length`.
 
 ```js
 const list = new singleLinkList()
-list.push("A").push("B").push("C")
-
-list.toArray()   // [ 'A', 'B', 'C' ]
-list.pop().val   // 'C'
-list.shift().val // 'A'
-list.length      // 1
+list.push("B").push("C")   // B -> C
+list.unshift("A")          // A -> B -> C
+list.get(1).val            // 'B'
+list.shift()               // B -> C
+list.reverse()             // C -> B
+list.length                // 2
 ```
 
 ### API
 
 | Method | Returns | Time | Notes |
 | --- | --- | --- | --- |
-| `push(val)` | the list | O(1) | Appends to the end. Chainable. |
-| `pop()` | removed node, or `undefined` | O(n) | Must walk the whole list to find the node before the tail — a singly linked list has no back pointers. |
-| `shift()` | removed node, or `undefined` | O(1) | Removes from the front. |
-| `toArray()` | array of values | O(n) | Helper for printing/inspecting. |
+| `push(val)` | the list | O(1) | Appends to the end. |
+| `unshift(val)` | the list | O(1) | Prepends to the front. |
+| `shift()` | the list, or `undefined` if empty | O(1) | Removes the first node. |
+| `pop()` | the list, or `undefined` if empty | O(n) | Removes the last node. |
+| `get(index)` | the node, or `undefined` if out of range | O(n) | 0-based; returns the node, so read `.val`. |
+| `reverse()` | the list, or `undefined` if empty | O(n) | Reverses in place; `head` and `tail` swap. |
 
-`pop()` and `shift()` return the **removed node** (not the list), so the value is
-available as `.val`. Both return `undefined` on an empty list rather than throwing.
-When the last node is removed, `head` and `tail` are both reset to `null` and
-`length` is `0`.
+The mutators return the list itself, so calls can be chained:
+`list.push(1).push(2)`, `list.reverse().push(0)`.
 
-`push()` returns the list itself so calls can be chained.
+Because `pop()` and `shift()` return the list rather than the node they detached, the
+removed value has to be read *before* the call if it's needed.
 
-### Why `pop()` is O(n)
+Emptying the list — by `pop()` or `shift()` — resets `head` and `tail` to `null` and
+`length` to `0`, so it is reusable immediately.
 
-Removing the tail means the new tail's `next` has to be set to `null`, and the only
-way to reach that node is from the head. `pop()` therefore walks the list with two
-pointers — `last` and a `prev` trailing one step behind — and uses `prev === null`
-to detect the single-node case. A doubly linked list makes this O(1); that's the
-main reason it exists.
+### Why `pop()` is O(n) but `shift()` is O(1)
 
-### Not implemented yet
+Removing the tail means setting the new tail's `next` to `null`, and the only way to
+reach the node before the tail is to walk from the head — a singly linked list has no
+back pointers. Removing the head just means moving `head` to `head.next`. That
+asymmetry is the main reason doubly linked lists exist.
 
-`unshift`, `get(index)`, `set(index, val)`, `insert(index, val)`, `remove(index)`,
-`reverse`.
+## Not implemented yet
+
+`set(index, val)`, `insert(index, val)`, `remove(index)`.
