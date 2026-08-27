@@ -32,8 +32,9 @@ const list = new singleLinkList()
 list.push("B").push("C")   // B -> C
 list.unshift("A")          // A -> B -> C
 list.get(1).val            // 'B'
-list.shift()               // B -> C
-list.reverse()             // C -> B
+list.set(1, "X")           // A -> X -> C
+list.remove(0)             // X -> C
+list.reverse()             // C -> X
 list.length                // 2
 ```
 
@@ -46,16 +47,22 @@ list.length                // 2
 | `shift()` | the list, or `undefined` if empty | O(1) | Removes the first node. |
 | `pop()` | the list, or `undefined` if empty | O(n) | Removes the last node. |
 | `get(index)` | the node, or `undefined` if out of range | O(n) | 0-based; returns the node, so read `.val`. |
+| `set(index, val)` | the list, or `undefined` if out of range | O(n) | Overwrites the value at `index`; adds no node. |
+| `remove(index)` | the list, or `undefined` if out of range | O(n) | Deletes the node at `index`; O(1) for `index === 0`. |
 | `reverse()` | the list, or `undefined` if empty | O(n) | Reverses in place; `head` and `tail` swap. |
 
 The mutators return the list itself, so calls can be chained:
-`list.push(1).push(2)`, `list.reverse().push(0)`.
+`list.push(1).push(2)`, `list.set(0, "a").remove(2)`.
 
-Because `pop()` and `shift()` return the list rather than the node they detached, the
-removed value has to be read *before* the call if it's needed.
+The index-taking methods — `get`, `set`, `remove` — are 0-based and return
+`undefined` for a negative index or one at/past `length`, rather than throwing.
 
-Emptying the list — by `pop()` or `shift()` — resets `head` and `tail` to `null` and
-`length` to `0`, so it is reusable immediately.
+Because `pop()`, `shift()`, and `remove()` return the list rather than the node they
+detached, the removed value has to be read *before* the call if it's needed.
+
+Emptying the list — by `pop()`, `shift()`, or `remove()` — resets `head` and `tail`
+to `null` and `length` to `0`, so it is reusable immediately. `push()` and
+`unshift()` work correctly on a list that was emptied that way.
 
 ### Why `pop()` is O(n) but `shift()` is O(1)
 
@@ -149,4 +156,4 @@ as a comment. LeetCode supplies it; running the file locally throws
 
 ## Not implemented yet
 
-`set(index, val)`, `insert(index, val)`, `remove(index)` on `singleLinkList`.
+`insert(index, val)` on `singleLinkList`.
