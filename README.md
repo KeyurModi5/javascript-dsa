@@ -8,11 +8,12 @@ No dependencies, no build step — every file runs directly under Node.
 | File | What it is |
 | --- | --- |
 | [`singleLinkList.js`](singleLinkList.js) | Singly linked list implementation |
-| [`removeDeplicateFormLinkList.js`](removeDeplicateFormLinkList.js) | Remove duplicates from a sorted list (LeetCode 83) |
+| [`removeDuplicateFormLinkList.js`](removeDuplicateFormLinkList.js) | Remove duplicates from a sorted list — keep one of each (LeetCode 83) |
+| [`RemoveDuplicatesfromSortedList.js`](RemoveDuplicatesfromSortedList.js) | Remove duplicates from a sorted list — keep only uniques (LeetCode 82) |
 
 ## Running
 
-Both files declare their classes/functions and print nothing on their own:
+Every file declares its classes/functions and prints nothing on its own:
 
 ```bash
 node singleLinkList.js   # runs, no output
@@ -65,18 +66,31 @@ asymmetry is the main reason doubly linked lists exist.
 
 ## Problems
 
-### Remove duplicates from a sorted list
+Both problems below take a **sorted** list and are solved in one pass, O(n) time and
+O(1) space, by rewriting `next` pointers in place. They differ only in what a
+duplicate deserves:
 
-[`removeDeplicateFormLinkList.js`](removeDeplicateFormLinkList.js) — LeetCode 83.
+| Input | LeetCode 83 — keep one | LeetCode 82 — keep uniques |
+| --- | --- | --- |
+| `[1,1,2,3,3]` | `[1,2,3]` | `[2]` |
+| `[1,1]` | `[1]` | `[]` |
+
+Both files operate on LeetCode's `ListNode` shape (`{ val, next }`), not on the
+`singleLinkList` class above — the two problems and the data structure are
+independent of each other. Both also declare the same function name,
+`deleteDuplicates`, so they cannot be loaded into one scope without one shadowing
+the other.
+
+### Keep one of each duplicate (LeetCode 83)
+
+[`removeDuplicateFormLinkList.js`](removeDuplicateFormLinkList.js)
 
 ```js
 deleteDuplicates(head)   // ListNode | null  ->  ListNode | null
 ```
 
-Takes the head of a **sorted** list and drops repeated values in place, keeping one
-node per value. Returns the same `head` it was given (mutated), or `null` for an
-empty list. O(n) time, O(1) space — no new nodes are allocated, only `next` pointers
-are rewritten.
+Collapses each run of equal values to a single node. Returns the same `head` it was
+given (mutated), or `null` for an empty list.
 
 ```
 [1,1,2]           -> [1,2]
@@ -84,17 +98,6 @@ are rewritten.
 [1,1,1,1]         -> [1]
 [-3,-3,-1,0,0,7]  -> [-3,-1,0,7]
 ```
-
-It works on a `ListNode` shape (`{ val, next }`) as supplied by LeetCode, not on the
-`singleLinkList` class above — the two files are independent. The `ListNode`
-constructor itself only exists as a comment, so the file has to be given nodes built
-elsewhere.
-
-**Only adjacent duplicates are removed**, which is why the input must be sorted.
-`[1,2,1]` comes back unchanged. Removing duplicates from an *unsorted* list needs a
-different approach — a `Set` of seen values, at O(n) extra space.
-
-#### How it works
 
 One pointer walks the list, comparing each node to its neighbour:
 
@@ -105,6 +108,44 @@ One pointer walks the list, comparing each node to its neighbour:
 Not advancing on a match is the part that matters. Advancing in both branches turns
 `[1,1,1,1]` into `[1,1]`, since every second duplicate gets skipped over instead of
 removed.
+
+The head can never be deleted here — one copy of every value survives — so no dummy
+node is needed and `head` is safe to return.
+
+### Keep only the values that appear once (LeetCode 82)
+
+[`RemoveDuplicatesfromSortedList.js`](RemoveDuplicatesfromSortedList.js)
+
+```js
+deleteDuplicates(head)   // ListNode | null  ->  ListNode | null
+```
+
+Deletes every node that has a duplicate, keeping only values that appear exactly
+once. Returns the new head, which may be `null` if nothing was unique.
+
+```
+[1,2,3,3,4,4,5]   -> [1,2,5]
+[1,1,1,2,3]       -> [2,3]
+[1,1,2,2]         -> []
+[-2,-2,-1,1,1,2]  -> [-1,2]
+```
+
+Two pointers plus a dummy node: `current` scans, `previous` stays on the last node
+known to be kept.
+
+- **`current` starts a duplicate group** → an inner loop runs `current` to the *last*
+  node of the group, then `previous.next = current.next` unlinks the whole group at
+  once.
+- **Otherwise** → `previous` advances to `current`, since that node survives.
+
+The dummy node matters here because, unlike LeetCode 83, the head itself can be
+deleted — `[1,1,2]` must return `[2]`. `previous` needs somewhere to stand before the
+first real node, and returning `dummy.next` instead of `head` is what lets the answer
+start at a different node, or be empty.
+
+**Note:** this file calls `new ListNode(0)` for the dummy, but `ListNode` only exists
+as a comment. LeetCode supplies it; running the file locally throws
+`ReferenceError: ListNode is not defined` until you define the constructor yourself.
 
 ## Not implemented yet
 
