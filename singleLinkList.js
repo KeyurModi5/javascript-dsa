@@ -102,5 +102,48 @@ class singleLinkList {
         return this
     }
 
+    set(index, val) {
+        if (index >= this.length || index < 0) return undefined
 
+        let counter = 0
+        let nodeval = this.head
+        while (counter !== index) {
+            nodeval = nodeval.next
+            counter++
+        }
+
+        nodeval.val = val
+
+        return this
+
+    }
+    remove(index) {
+        if (index < 0 || index >= this.length) return undefined;
+
+        if (index === 0) {
+            this.head = this.head.next;
+            this.length--;
+
+            if (this.length === 0) {
+                this.tail = null;
+            }
+
+            return this;
+        }
+
+        let current = this.head;
+
+        for (let i = 0; i < index - 1; i++) {
+            current = current.next;
+        }
+
+        if (index === this.length - 1) {
+            this.tail = current;
+        }
+
+        current.next = current.next.next;
+        this.length--;
+
+        return this;
+    }
 }
