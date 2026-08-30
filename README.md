@@ -10,6 +10,7 @@ No dependencies, no build step — every file runs directly under Node.
 | [`singleLinkList.js`](singleLinkList.js) | Singly linked list implementation |
 | [`removeDuplicateFormLinkList.js`](removeDuplicateFormLinkList.js) | Remove duplicates from a sorted list — keep one of each (LeetCode 83) |
 | [`RemoveDuplicatesfromSortedList.js`](RemoveDuplicatesfromSortedList.js) | Remove duplicates from a sorted list — keep only uniques (LeetCode 82) |
+| [`sumOfTwoArray.js`](sumOfTwoArray.js) | Two Sum — brute force and hash map (LeetCode 1) |
 
 ## Running
 
@@ -73,7 +74,10 @@ asymmetry is the main reason doubly linked lists exist.
 
 ## Problems
 
-Both problems below take a **sorted** list and are solved in one pass, O(n) time and
+### Duplicates in a sorted linked list
+
+
+Both take a **sorted** list and are solved in one pass, O(n) time and
 O(1) space, by rewriting `next` pointers in place. They differ only in what a
 duplicate deserves:
 
@@ -88,7 +92,7 @@ independent of each other. Both also declare the same function name,
 `deleteDuplicates`, so they cannot be loaded into one scope without one shadowing
 the other.
 
-### Keep one of each duplicate (LeetCode 83)
+#### Keep one of each duplicate (LeetCode 83)
 
 [`removeDuplicateFormLinkList.js`](removeDuplicateFormLinkList.js)
 
@@ -119,7 +123,7 @@ removed.
 The head can never be deleted here — one copy of every value survives — so no dummy
 node is needed and `head` is safe to return.
 
-### Keep only the values that appear once (LeetCode 82)
+#### Keep only the values that appear once (LeetCode 82)
 
 [`RemoveDuplicatesfromSortedList.js`](RemoveDuplicatesfromSortedList.js)
 
@@ -153,6 +157,70 @@ start at a different node, or be empty.
 **Note:** this file calls `new ListNode(0)` for the dummy, but `ListNode` only exists
 as a comment. LeetCode supplies it; running the file locally throws
 `ReferenceError: ListNode is not defined` until you define the constructor yourself.
+
+### Two Sum (LeetCode 1)
+
+[`sumOfTwoArray.js`](sumOfTwoArray.js)
+
+```js
+twoSum(nums, target)   // (number[], number) -> [i, j], or []
+```
+
+Given an array of integers and a target, return the indices of the two numbers that
+add up to the target. The same element may not be used twice.
+
+```
+[2,7,11,15]  t=9   -> [0,1]
+[3,2,4]      t=6   -> [1,2]
+[3,3]        t=6   -> [0,1]
+[1,2,3]      t=7   -> []
+```
+
+The file holds **three approaches** to the same problem, to compare their cost:
+
+| Approach | Time | Space | Needs sorted input | Idea |
+| --- | --- | --- | --- | --- |
+| Brute force | O(n²) | O(1) | no | Test every pair, with `j` starting at `i + 1`. |
+| Hash map | O(n) | O(n) | no | One pass; look for `target - nums[i]` among values already seen. |
+| Two pointers | O(n) | O(1) | **yes** | Squeeze inward from both ends of the array. |
+
+In the brute-force version, starting `j` at `i + 1` does two jobs: it never pairs an
+element with itself, and it skips pairs an earlier `i` already tested.
+
+The map version is the point of the exercise. Rather than searching the rest of the
+array for a partner, it computes what the partner must be — `target - nums[i]` — and
+asks whether that value has already gone by. A `Map` answers in O(1), which trades
+O(n) space for dropping an entire factor of `n` off the running time.
+
+The lookup happens *before* the current value is inserted. That ordering is what stops
+an element pairing with itself when the target is exactly double it: `[3,3]` with
+target `6` returns `[0,1]`, not `[0,0]`. It also means the stored index is always the
+earlier half of the pair.
+
+#### Two pointers, on a sorted array (LeetCode 167)
+
+The third approach is not interchangeable with the other two — it is only correct when
+`nums` is sorted ascending. That extra guarantee is what pays for itself: no `Map` is
+needed, so it matches the hash map at O(n) time while keeping brute force's O(1) space.
+
+Start with the widest pair — first and last — and squeeze inward. Because the array is
+sorted, one comparison rules out an entire side:
+
+- **`sum < target`** → `nums[i]` is too small to pair with *anything* still in range,
+  since `nums[j]` is the largest value left. Discard it: `i++`.
+- **`sum > target`** → `nums[j]` is too big for *any* remaining partner, since
+  `nums[i]` is the smallest value left. Discard it: `j--`.
+
+Each step eliminates exactly one candidate, so the pointers meet within n steps and no
+valid pair is ever stepped over. The loop condition is `i < j`, not `i <= j`, because
+the two pointers have to land on different elements.
+
+LeetCode 167 expects **1-based** indices, so submitting there needs `[i + 1, j + 1]`.
+The version here returns 0-based indices to stay consistent with the other two.
+
+**Note:** all three approaches are declared as `var twoSum`, so each definition
+replaces the one before it and only the last can actually be called. Rename them to
+run all three side by side.
 
 ## Not implemented yet
 
