@@ -118,8 +118,5 @@ var twoSum = function (nums, target) {
         }
     }
 
-    // Pointers crossed without a match — no pair sums to the target. This
-    // return belongs AFTER the loop; inside it, the loop could only ever run
-    // one iteration.
     return []
 };
