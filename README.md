@@ -11,6 +11,7 @@ No dependencies, no build step — every file runs directly under Node.
 | [`removeDuplicateFormLinkList.js`](removeDuplicateFormLinkList.js) | Remove duplicates from a sorted list — keep one of each (LeetCode 83) |
 | [`RemoveDuplicatesfromSortedList.js`](RemoveDuplicatesfromSortedList.js) | Remove duplicates from a sorted list — keep only uniques (LeetCode 82) |
 | [`sumOfTwoArray.js`](sumOfTwoArray.js) | Two Sum — brute force and hash map (LeetCode 1) |
+| [`sumofThreeArray.js`](sumofThreeArray.js) | Three Sum — sort plus two pointers (LeetCode 15) |
 
 ## Running
 
@@ -75,7 +76,6 @@ asymmetry is the main reason doubly linked lists exist.
 ## Problems
 
 ### Duplicates in a sorted linked list
-
 
 Both take a **sorted** list and are solved in one pass, O(n) time and
 O(1) space, by rewriting `next` pointers in place. They differ only in what a
@@ -221,6 +221,47 @@ The version here returns 0-based indices to stay consistent with the other two.
 **Note:** all three approaches are declared as `var twoSum`, so each definition
 replaces the one before it and only the last can actually be called. Rename them to
 run all three side by side.
+
+### Three Sum (LeetCode 15)
+
+[`sumofThreeArray.js`](sumofThreeArray.js)
+
+```js
+threeSum(nums)   // number[] -> number[][], every unique triplet summing to 0
+```
+
+Find all unique triplets that add up to zero. Order inside a triplet doesn't matter,
+and no triplet may appear twice.
+
+```
+[-1,0,1,2,-1,-4]  -> [[-1,-1,2], [-1,0,1]]
+[-2,0,1,1,2]      -> [[-2,0,2], [-2,1,1]]
+[0,0,0,0]         -> [[0,0,0]]
+[0,1,1]           -> []
+```
+
+Time O(n²), space O(1) beyond the output: sorting costs O(n log n), then each of the n
+outer positions drives one linear two-pointer sweep.
+
+This is the two-pointer idea from Two Sum with one extra layer — **sort, fix one
+number, then two-pointer the rest looking for `-nums[i]`**. Sorting is what makes both
+the sweep and the deduplication possible.
+
+Three details carry the weight:
+
+- **Skip a repeated `nums[i]`** (`nums[i] === nums[i - 1]` → `continue`). The first
+  time a value is fixed, the sweep already finds every triplet containing it; fixing it
+  again could only reproduce them.
+- **Break once `nums[i] > 0`.** In a sorted array the fixed number is the smallest of
+  the three, so when it turns positive nothing after it can reach zero.
+- **After recording a hit, move both pointers past their duplicates** — `left++` and
+  `right--` first, then skip while the new value equals the one just consumed. This is
+  what stops `[0,0,0,0]` from emitting `[0,0,0]` twice.
+
+Without the first and third of those the algorithm still finds every triplet; it just
+reports some of them more than once.
+
+**Note:** `nums.sort(...)` sorts in place, so the caller's array comes back reordered.
 
 ## Not implemented yet
 
